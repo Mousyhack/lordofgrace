@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아이디어 공유</title>
+  <!-- Bootstrap CSS for styling -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .card-container {
+      margin-top: 20px;
+    }
+    .card {
+      margin-bottom: 15px;
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNMbF43Je4ShBlqpSurocnS1E8XTELKgg",
+      authDomain: "withim-b9318.firebaseapp.com",
+      projectId: "withim-b9318",
+      storageBucket: "withim-b9318.appspot.com",
+      messagingSenderId: "814253563844",
+      appId: "1:814253563844:web:7624e285bad291ae7f4e91",
+      measurementId: "G-GC8X4WNNNK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ideasCollection = collection(db, "ideas");
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('ideaForm');
+      const ideasContainer = document.getElementById('ideasContainer');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = form.title.value;
+        const idea = form.idea.value;
+        try {
+          await addDoc(ideasCollection, { title, idea });
+          form.reset();
+        } catch (error) {
+          console.error("Error adding document: ", error);
+        }
+      });
+
+      onSnapshot(ideasCollection, (snapshot) => {
+        ideasContainer.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          ideasContainer.innerHTML += `
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">${data.title}</h5>
+                <p class="card-text">${data.idea}</p>
+              </div>
+            </div>
+          `;
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1 class="my-4 text-center">아이디어 공유</h1>
+    <form id="ideaForm" class="mb-4">
+      <div class="form-group">
+        <input type="text" class="form-control" id="title" name="title" placeholder="제목" required>
+      </div>
+      <div class="form-group">
+        <textarea class="form-control" id="idea" name="idea" rows="3" placeholder="아이디어" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">추가</button>
+    </form>
+    <div id="ideasContainer" class="card-container"></div>
+  </div>
+
+  <!-- Bootstrap JS for modal functionality -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
